@@ -1,9 +1,11 @@
 {
   "name": "shuttle",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/server.js",
   "type": "module",
   "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -22,5 +24,14 @@
     "qrcode": "^1.5.4",
     "socket.io": "^4.8.1",
     "stripe": "^17.7.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^24.3.1",
+    "@types/qrcode": "^1.5.5",
+    "typescript": "^5.9.2"
   }
 }
