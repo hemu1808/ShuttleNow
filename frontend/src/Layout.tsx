@@ -12,7 +12,6 @@ import {
   Slide,
   useScrollTrigger,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import {
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
@@ -39,12 +38,7 @@ function HideOnScroll({ children }: { children: JSX.Element }) {
   );
 }
 
-const LogoContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  cursor: 'pointer',
-  '&:hover': { transform: 'scale(1.02)' },
-}));
+// REMOVED: const LogoContainer = styled(Box)... (This was causing the error)
 
 export default function Layout() {
   const { mode, toggle } = useColorMode();
@@ -63,7 +57,20 @@ export default function Layout() {
       <HideOnScroll>
         <AppBar position="sticky" color="transparent" elevation={0} sx={{ backdropFilter: 'blur(20px)' }}>
           <Toolbar sx={{ gap: 2 }}>
-            <LogoContainer component={RouterLink} to="/" sx={{ flexGrow: 1 }}>
+            {/* FIXED: Replaced LogoContainer with Box and moved styles to sx */}
+            <Box
+              component={RouterLink as any} // 'as any' prevents the strict type conflict
+              to="/"
+              sx={{
+                flexGrow: 1,
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+                textDecoration: 'none', // Ensures link doesn't look like text
+                color: 'inherit',       // Inherits text color
+                '&:hover': { transform: 'scale(1.02)' },
+              }}
+            >
               <Avatar
                 sx={{
                   bgcolor: mode === 'light' ? '#0D47A1' : '#00695C',
@@ -75,7 +82,7 @@ export default function Layout() {
               <Typography variant="h6" sx={{ fontWeight: 800 }}>
                 ShuttleNow
               </Typography>
-            </LogoContainer>
+            </Box>
 
             <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
               {navItems.map((i) => (

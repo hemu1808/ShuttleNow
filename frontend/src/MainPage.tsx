@@ -63,8 +63,8 @@ export default function MainPage() {
   return (
     <Box px={{ xs: 2, md: 3 }} py={3}>
       <Grid container spacing={3}>
-        {/* Sidebar */}
-        <Grid item xs={12} md={4}>
+        {/* Sidebar - Fixed Grid Syntax */}
+        <Grid size={{ xs: 12, md: 4 }}>
           <GlassCard>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography variant="h6" fontWeight={800}>
@@ -163,8 +163,8 @@ export default function MainPage() {
           </GlassCard>
         </Grid>
 
-        {/* Map & Detail */}
-        <Grid item xs={12} md={8}>
+        {/* Map & Detail - Fixed Grid Syntax */}
+        <Grid size={{ xs: 12, md: 8 }}>
           <Stack spacing={3}>
             <GlassCard sx={{ p: 0, overflow: 'hidden' }}>
               <Box p={2}>
@@ -202,7 +202,8 @@ export default function MainPage() {
                           value: `${activeEvent.seats - activeEvent.bookedSeats.length} / ${activeEvent.seats}`,
                         },
                       ].map((info) => (
-                        <Grid item xs={6} sm={3} key={info.label}>
+                        // Fixed Grid Syntax
+                        <Grid size={{ xs: 6, sm: 3 }} key={info.label}>
                           <Typography variant="caption" color="text.secondary">
                             {info.label}
                           </Typography>
@@ -271,7 +272,8 @@ function Map({
 
   if (!isLoaded)
     return (
-      <Box height="100%" display="grid" placeItems="center">
+      // Fixed: moved placeItems to sx
+      <Box height="100%" display="grid" sx={{ placeItems: 'center' }}>
         <CircularProgress />
       </Box>
     );
@@ -295,7 +297,9 @@ function Map({
       )}
       {activeEvent && <MarkerF position={{ lat: activeEvent.lat, lng: activeEvent.lng }} />}
       {activeEvent && <MarkerF position={{ lat: activeEvent.destLat, lng: activeEvent.destLng }} />}
-      {shuttleLocations[activeEvent?._id || ''] && (
+      
+      {/* Fixed: Safe Null Check for activeEvent */}
+      {activeEvent && shuttleLocations[activeEvent._id] && (
         <MarkerF position={shuttleLocations[activeEvent._id]} icon={{ url: 'bus.png' }} />
       )}
     </GoogleMap>

@@ -12,13 +12,13 @@ import BookingSuccessPage from './BookingSuccessPage';
 import FindBookingPage from './FindBookingPage';
 import AdminLoginPage from './AdminLoginPage';
 import AdminDashboard from './AdminDashboard';
-import { Box, CircularProgress } from '@mui/material';
+import { Typography, Box, CircularProgress } from '@mui/material';
 import PageTransition from './PageTransition';
 import './ModernApp.css';
 
 function Loader() {
   return (
-    <Box minHeight="40vh" display="grid" placeItems="center">
+    <Box minHeight="40vh" display="grid" sx= {{ placeItems: "center" }}>
       <CircularProgress />
     </Box>
   );
