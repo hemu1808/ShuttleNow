@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import api from './api';
+import api from '../utils/api';
 import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
-import { Event } from './types';
+import { Event } from '../types/types';
 import {
   Dialog,
   DialogTitle,
@@ -13,6 +13,8 @@ import {
   CircularProgress,
   Typography,
 } from '@mui/material';
+import GlassCard from '../components/GlassCard';
+import { useColorMode } from '../contexts/ThemeProvider';
 
 interface EventFormProps {
   event: Event | null;
@@ -27,8 +29,8 @@ interface FormData {
   lat: string | number;
   lng: string | number;
   destinationName: string;
-  destinationLat: string | number;
-  destinationLng: string | number;
+  destLat: string | number;
+  destLng: string | number;
   price: string | number;
   seats: string | number;
 }
@@ -37,7 +39,7 @@ const EventForm = ({ event, onSave, onClose }: EventFormProps) => {
   const [formData, setFormData] = useState<FormData>({
     name: '', date: '',
     location: '', lat: '', lng: '',
-    destinationName: '', destinationLat: '', destinationLng: '',
+    destinationName: '', destLat: '', destLng: '',
     price: '', seats: ''
   });
 
@@ -49,6 +51,7 @@ const EventForm = ({ event, onSave, onClose }: EventFormProps) => {
   // Refs to hold the autocomplete instances
   const originAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const destinationAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const { mode } = useColorMode();
 
   useEffect(() => {
     if (event) {
@@ -59,13 +62,13 @@ const EventForm = ({ event, onSave, onClose }: EventFormProps) => {
         lat: event.lat || '',
         lng: event.lng || '',
         destinationName: event.destinationName || '',
-        destinationLat: event.destinationLat || '',
-        destinationLng: event.destinationLng || '',
+        destLat: event.destLat || '',
+        destLng: event.destLng || '',
         price: event.price || '',
         seats: event.seats || ''
       });
     } else {
-      setFormData({ name: '', date: '', location: '', lat: '', lng: '', destinationName: '', destinationLat: '', destinationLng: '', price: '', seats: '' });
+      setFormData({ name: '', date: '', location: '', lat: '', lng: '', destinationName: '', destLat: '', destLng: '', price: '', seats: '' });
     }
   }, [event]);
 
@@ -107,11 +110,35 @@ const EventForm = ({ event, onSave, onClose }: EventFormProps) => {
   );
 
   return (
-    <Dialog open onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{event ? 'Edit Event' : 'Create New Event'}</DialogTitle>
+    <Dialog
+      open
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperComponent={(props) => (
+        <GlassCard {...props} sx={{ m: 2, background: 'transparent' }} />
+      )}
+      slotProps={{
+        backdrop: {
+          sx: {
+            backdropFilter: 'blur(8px)',
+            backgroundColor: mode === 'light' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.5)'
+          }
+        }
+      }}
+    >
+      <DialogTitle sx={{
+        fontWeight: 900,
+        fontSize: '1.5rem',
+        background: mode === 'light' ? 'linear-gradient(45deg, #2563eb, #3b82f6)' : 'linear-gradient(45deg, #2dd4bf, #0ea5e9)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+      }}>
+        {event ? 'Edit Route' : 'Create New Route'}
+      </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3, pt: 1 }}>
             <Box sx={{ gridColumn: 'span 12' }}>
               <TextField
                 name="name"
@@ -190,10 +217,24 @@ const EventForm = ({ event, onSave, onClose }: EventFormProps) => {
             </Box>
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button type="submit" variant="contained">
-            {event ? 'Update Event' : 'Create Event'}
+        <DialogActions sx={{ p: 3, pt: 0 }}>
+          <Button
+            onClick={onClose}
+            variant="outlined"
+            sx={{ borderRadius: 3, fontWeight: 700 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{
+              borderRadius: 3,
+              fontWeight: 800,
+              backgroundImage: mode === 'light' ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'linear-gradient(135deg, #2dd4bf, #0d9488)',
+            }}
+          >
+            {event ? 'Update Route' : 'Create Route'}
           </Button>
         </DialogActions>
       </form>

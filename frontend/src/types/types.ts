@@ -8,15 +8,10 @@ export interface Event {
   bookedSeats: string[];
   lat: number;
   lng: number;
-  
-  // Fields used by MainPage
-  destLat: number;
-  destLng: number;
-
   // Fields used by EventForm (marked optional to prevent errors if missing)
   destinationName?: string;
-  destinationLat?: number;
-  destinationLng?: number;
+  destLat?: number;
+  destLng?: number;
 
   description?: string;
 }

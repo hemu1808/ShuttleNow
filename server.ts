@@ -1,14 +1,14 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import cors from "cors";
 import mongoose from "mongoose";
 
 // --- Route Imports ---
-import eventRoutes, { setSocketInstance } from "./eventsRouter.js";
+import eventRoutes from "./eventsRouter.js";
 import adminRouter from './adminRouter.js';
 import authRouter from './authRouter.js';
 import bookingRouter from './bookingRouter.js';
@@ -25,7 +25,9 @@ if (!CLIENT_URL) {
 
 const corsOptions = {
   origin: CLIENT_URL,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 };
 
 const io = new Server(server, { cors: corsOptions });
@@ -34,8 +36,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // --- Routes ---
-setSocketInstance(io);
-app.use("/", eventRoutes); // Public event fetching
+app.use("/api", eventRoutes); // Public event fetching
 app.use('/api/auth', authRouter); // User login/register
 app.use('/api/bookings', bookingRouter); // Booking actions
 app.use('/api/admin', adminRouter); // Admin actions

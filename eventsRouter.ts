@@ -3,17 +3,11 @@ dotenv.config();
 
 import express, { Request, Response } from "express";
 import Event from "./models/Event.js";
-import { Server } from "socket.io";
 
 const router = express.Router();
-let io: Server;
-
-export const setSocketInstance = (socketInstance: Server) => {
-  io = socketInstance;
-};
 
 // GET all events (Public)
-router.get("/events", async (req: Request, res: Response) => {
+router.get("/events", async (_req: Request, res: Response) => {
   try {
     const events = await Event.find().sort({ date: 1 });
     res.json(events);

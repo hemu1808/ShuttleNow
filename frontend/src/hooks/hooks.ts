@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import api from './api';
-import { socket } from './socket';
-import { Event } from './types';
+import api from '../utils/api';
+import { socket } from '../utils/socket';
+import { Event } from '../types/types';
 
 interface ShuttleLocation {
   lat: number;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Event } from './types';
+import { Event } from '../types/types';
 
 // Define the type for the shuttle location map
 export interface ShuttleLocations {

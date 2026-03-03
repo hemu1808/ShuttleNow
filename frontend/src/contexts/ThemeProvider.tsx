@@ -41,6 +41,7 @@ export default function ThemeProvider({
 
   useEffect(() => {
     localStorage.setItem('darkMode', mode);
+    document.body.classList.remove('light', 'dark');
     document.body.className = mode;
   }, [mode]);
 
@@ -116,7 +117,7 @@ export default function ThemeProvider({
             body: {
               backgroundImage:
                 mode === 'light'
-                  ? `radial-gradient(circle, rgba(13,71,161,0.15) 0%, transparent 70%), linear-gradient(135deg, #F8FAFC, #FFF)`
+                  ? `radial-gradient(circle, rgba(13,71,161,0.15) 0%, transparent 70%), linear-gradient(135deg, #F8FAFC, #E3F2FD)`
                   : `radial-gradient(circle, rgba(13,71,161,0.10) 0%, transparent 70%), linear-gradient(135deg, #0F172A, #1E293B)`,
               transition: 'all .3s ease-in-out',
             },

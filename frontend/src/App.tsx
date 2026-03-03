@@ -1,24 +1,24 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import ThemeProvider from './ThemeProvider';
-import { AuthProvider } from './AuthContext';
-import ProtectedRoute from './ProtectedRoute';
-import Layout from './Layout';
-import MainPage from './MainPage';
-import LoginPage from './LoginPage';
-import RegisterPage from './RegisterPage';
-import MyBookingsPage from './MyBookingsPage';
-import BookingSuccessPage from './BookingSuccessPage';
-import FindBookingPage from './FindBookingPage';
-import AdminLoginPage from './AdminLoginPage';
-import AdminDashboard from './AdminDashboard';
+import ThemeProvider from './contexts/ThemeProvider';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import MainPage from './pages/MainPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import MyBookingsPage from './pages/MyBookingsPage';
+import BookingSuccessPage from './pages/BookingSuccessPage';
+import FindBookingPage from './pages/FindBookingPage';
+import AdminLoginPage from './pages/AdminLoginPage';
+import AdminDashboard from './pages/AdminDashboard';
+import SettingsPage from './pages/SettingsPage';
 import { Typography, Box, CircularProgress } from '@mui/material';
-import PageTransition from './PageTransition';
 import './ModernApp.css';
 
 function Loader() {
   return (
-    <Box minHeight="40vh" display="grid" sx= {{ placeItems: "center" }}>
+    <Box minHeight="40vh" display="grid" sx={{ placeItems: "center" }}>
       <CircularProgress />
     </Box>
   );
@@ -45,6 +45,7 @@ export default function App() {
                 </Route>
                 <Route element={<ProtectedRoute />}>
                   <Route path="my-bookings" element={<MyBookingsPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
                 </Route>
                 <Route
                   path="*"

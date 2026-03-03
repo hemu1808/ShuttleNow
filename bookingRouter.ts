@@ -8,17 +8,17 @@ import { AuthRequest } from './types';
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 if (!STRIPE_SECRET_KEY) {
-  throw new Error("STRIPE_SECRET_KEY is not defined");
+    throw new Error("STRIPE_SECRET_KEY is not defined");
 }
 const stripe = new Stripe(STRIPE_SECRET_KEY);
 const router = express.Router();
 
 interface CheckoutMetadata {
-  eventId: string;
-  seats: string;
-  userId?: string;
-  guestPhone?: string;
-  isGuest: 'true' | 'false';
+    eventId: string;
+    seats: string;
+    userId?: string;
+    guestPhone?: string;
+    isGuest: 'true' | 'false';
 }
 
 // --- Logged-in User Routes ---
@@ -39,11 +39,11 @@ router.post('/create-stripe-session', userAuthMiddleware, async (req: AuthReques
     try {
         const event = await Event.findById(eventId);
         if (!event) return res.status(404).json({ message: 'Event not found' });
-        
+
         // Final validation check before payment
         const isUnavailable = selectedSeats.some((seat: number) => event.bookedSeats.includes(seat));
         if (isUnavailable) return res.status(409).json({ message: 'One or more selected seats are no longer available.' });
-        
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [{ price_data: { currency: 'usd', product_data: { name: `${event.name} Ticket` }, unit_amount: event.price * 100 }, quantity: selectedSeats.length }],
@@ -54,7 +54,8 @@ router.post('/create-stripe-session', userAuthMiddleware, async (req: AuthReques
         });
         res.json({ url: session.url });
     } catch (err: any) {
-        res.status(500).json({ message: 'Could not create Stripe session' });
+        console.error("Stripe session error:", err);
+        res.status(500).json({ message: 'Could not create Stripe session: ' + err.message });
     }
 });
 
@@ -65,7 +66,7 @@ router.post('/guest/create-stripe-session', async (req, res) => {
     try {
         const event = await Event.findById(eventId);
         if (!event) return res.status(404).json({ message: 'Event not found' });
-        
+
         // Final validation check before payment
         const isUnavailable = selectedSeats.some((seat: number) => event.bookedSeats.includes(seat));
         if (isUnavailable) return res.status(409).json({ message: 'One or more selected seats are no longer available.' });
@@ -80,7 +81,71 @@ router.post('/guest/create-stripe-session', async (req, res) => {
         });
         res.json({ url: session.url });
     } catch (err: any) {
-        res.status(500).json({ message: 'Could not create guest Stripe session' });
+        console.error("Guest Stripe session error:", err);
+        res.status(500).json({ message: 'Could not create guest Stripe session: ' + err.message });
+    }
+});
+
+router.post('/demo-checkout', userAuthMiddleware, async (req: AuthRequest, res) => {
+    const { eventId, selectedSeats } = req.body;
+    try {
+        const event = await Event.findById(eventId);
+        if (!event) return res.status(404).json({ message: 'Event not found' });
+
+        const isUnavailable = selectedSeats.some((seat: number) => event.bookedSeats.map(String).includes(seat.toString()));
+        if (isUnavailable) return res.status(409).json({ message: 'One or more selected seats are no longer available.' });
+
+        const demoSessionId = `DEMO_SESSION_${Math.random().toString(36).substring(2, 15)}`;
+
+        await Event.findByIdAndUpdate(eventId, { $push: { bookedSeats: { $each: selectedSeats.map(String) } } });
+
+        const bookingData: any = {
+            event: eventId,
+            seats: selectedSeats.map(String),
+            bookingId: demoSessionId,
+            user: req.user?.id
+        };
+
+        const newBooking = new Booking(bookingData);
+        newBooking.qrCode = await QRCode.toDataURL(newBooking._id.toString());
+        await newBooking.save();
+
+        res.json({ url: `${process.env.CLIENT_URL}/booking-success?session_id=${demoSessionId}` });
+    } catch (err: any) {
+        console.error("Demo checkout error:", err);
+        res.status(500).json({ message: 'Could not process demo checkout: ' + err.message });
+    }
+});
+
+router.post('/guest/demo-checkout', async (req, res) => {
+    const { eventId, selectedSeats, phone } = req.body;
+    if (!phone) return res.status(400).json({ message: 'Phone number is required for guest checkout.' });
+    try {
+        const event = await Event.findById(eventId);
+        if (!event) return res.status(404).json({ message: 'Event not found' });
+
+        const isUnavailable = selectedSeats.some((seat: number) => event.bookedSeats.map(String).includes(seat.toString()));
+        if (isUnavailable) return res.status(409).json({ message: 'One or more selected seats are no longer available.' });
+
+        const demoSessionId = `DEMO_SESSION_${Math.random().toString(36).substring(2, 15)}`;
+
+        await Event.findByIdAndUpdate(eventId, { $push: { bookedSeats: { $each: selectedSeats.map(String) } } });
+
+        const bookingData: any = {
+            event: eventId,
+            seats: selectedSeats.map(String),
+            bookingId: demoSessionId,
+            guestPhone: phone
+        };
+
+        const newBooking = new Booking(bookingData);
+        newBooking.qrCode = await QRCode.toDataURL(newBooking._id.toString());
+        await newBooking.save();
+
+        res.json({ url: `${process.env.CLIENT_URL}/booking-success?session_id=${demoSessionId}` });
+    } catch (err: any) {
+        console.error("Guest demo checkout error:", err);
+        res.status(500).json({ message: 'Could not process guest demo checkout: ' + err.message });
     }
 });
 
@@ -98,6 +163,12 @@ router.post('/find-by-phone', async (req, res) => {
 router.post('/confirm-booking', async (req, res) => {
     const { sessionId } = req.body;
     try {
+        if (sessionId.startsWith('DEMO_SESSION_')) {
+            const existingBooking = await Booking.findOne({ bookingId: sessionId });
+            if (existingBooking) return res.status(200).json({ booking: existingBooking });
+            return res.status(404).json({ message: 'Demo booking not found.' });
+        }
+
         const session = await stripe.checkout.sessions.retrieve(sessionId);
         if (session.payment_status !== 'paid') return res.status(400).json({ message: 'Payment not successful' });
 
@@ -111,23 +182,24 @@ router.post('/confirm-booking', async (req, res) => {
 
         const { eventId, seats, userId, guestPhone, isGuest } = metadata;
         const seatArray = seats.split(',').map(Number);
-        
+
         await Event.findByIdAndUpdate(eventId, { $push: { bookedSeats: { $each: seatArray } } });
-        
+
         const bookingData: any = {
             event: eventId,
             seats: seatArray,
             bookingId: session.id,
             ...(isGuest === 'true' ? { guestPhone } : { user: userId })
         };
-        
+
         const newBooking = new Booking(bookingData);
         newBooking.qrCode = await QRCode.toDataURL(newBooking._id.toString());
         await newBooking.save();
 
         res.status(201).json({ booking: newBooking });
     } catch (err: any) {
-        res.status(500).json({ message: 'Booking confirmation failed.' });
+        console.error("Booking confirmation failed:", err);
+        res.status(500).json({ message: 'Booking confirmation failed: ' + err.message });
     }
 });
 
