@@ -85,10 +85,7 @@ To run this project locally:
     # Create a .env file and add your keys (MONGO_URI, STRIPE_SECRET_KEY, JWT_SECRET)
     npx tsx server.ts
     ```
-    mongodb+srv://hmangala_db_user:<db_password>@cluster.piubcga.mongodb.net/?appName=Cluster
-    sk_test_51RXrgCH0F4x1RNuLcwWqeKJRXoiBHirBQyAYTaYsg59ZXnXTym8x35dHFPgQG4KN4Z17RpXPZcfm8b3PSdOz7qGE0082xmglYL
-    pk_test_51RXrgCH0F4x1RNuLQIdHNwf6R9eYjGTVuEbSpkA2EhFDxbukZ7bZwZoC2XJvLen4hLsBNsCQPdW1fmDTfhiU21uV00c4PbknN3
-    BD3BA057-A4094E60-BF08C428-3377CE81
+    
 3.  **Frontend Setup:**
     ```bash
     # Navigate to the frontend folder
